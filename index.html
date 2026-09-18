@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#f4f2ec">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="资产罗盘">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="description" content="记录个人资产、资产分布、累计收益和预期收益。">
+    <title>资产罗盘</title>
+    <link rel="manifest" href="manifest.webmanifest?v=8">
+    <link rel="apple-touch-icon" href="icons/icon-180.png">
+    <link rel="icon" href="icons/icon-192.png">
+    <link rel="stylesheet" href="styles.css?v=8">
+  </head>
+  <body class="locked">
+    <section class="auth-screen" id="authScreen" aria-label="登录">
+      <form class="auth-card" id="authForm">
+        <div>
+          <p class="eyebrow">资产罗盘</p>
+          <h1 id="authTitle">登录</h1>
+        </div>
+        <div class="field">
+          <label for="authUsername">账户名</label>
+          <input id="authUsername" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="authPassword">密码</label>
+          <input id="authPassword" type="password" autocomplete="current-password" required>
+        </div>
+        <button class="primary-button auth-submit" id="authSubmit" type="submit">登录</button>
+        <p class="auth-message" id="authMessage"></p>
+      </form>
+    </section>
+
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">个人资产</p>
+          <h1>资产罗盘</h1>
+        </div>
+        <div class="top-actions">
+          <button class="icon-button" id="themeToggle" type="button" aria-label="切换深浅色" title="切换深浅色">◐</button>
+          <button class="icon-button" id="lockButton" type="button" aria-label="锁定" title="锁定">锁</button>
+        </div>
+      </header>
+
+      <section class="owner-switch" id="ownerSwitch" aria-label="资产归属"></section>
+
+      <section class="hero-panel" aria-label="资产总览">
+        <div class="hero-grid">
+          <div>
+            <p class="metric-label">总资产</p>
+            <strong class="hero-value" id="totalValue">--</strong>
+            <div class="trend-row" id="totalChange">--</div>
+          </div>
+          <div class="donut-wrap">
+            <div class="donut" id="categoryDonut" aria-hidden="true"></div>
+            <span id="topCategory">--</span>
+          </div>
+        </div>
+        <div class="summary-strip">
+          <div>
+            <span>持仓成本</span>
+            <strong id="totalCost">--</strong>
+          </div>
+          <div>
+            <span>累计收益</span>
+            <strong id="totalProfit">--</strong>
+          </div>
+          <div>
+            <span>收益率</span>
+            <strong id="profitRate">--</strong>
+          </div>
+        </div>
+      </section>
+
+      <nav class="tabbar" aria-label="页面">
+        <button class="tab is-active" type="button" data-view="overview">总览</button>
+        <button class="tab" type="button" data-view="assets">资产</button>
+        <button class="tab" type="button" data-view="settings">数据</button>
+      </nav>
+
+      <section class="view is-active" id="overviewView">
+        <div class="section-heading">
+          <h2>资产分布</h2>
+          <button class="text-button" id="snapshotButton" type="button">保存快照</button>
+        </div>
+        <div class="category-list" id="categoryList"></div>
+
+        <div class="tool-card">
+          <div class="section-heading compact">
+            <h2>资产曲线</h2>
+            <span id="historyRange">--</span>
+          </div>
+          <canvas id="historyChart" width="720" height="360" aria-label="资产曲线"></canvas>
+        </div>
+      </section>
+
+      <section class="view" id="assetsView">
+        <div class="section-heading">
+          <h2>持仓资产</h2>
+          <button class="primary-button" id="addAssetButton" type="button">＋ 新增</button>
+        </div>
+        <div class="asset-list" id="assetList"></div>
+      </section>
+
+      <section class="view" id="settingsView">
+        <div class="tool-card">
+          <h2>数据管理</h2>
+          <div class="action-grid">
+            <button class="secondary-button" id="exportButton" type="button">导出 JSON</button>
+            <label class="secondary-button file-button">
+              导入 JSON
+              <input id="importInput" type="file" accept="application/json">
+            </label>
+            <button class="danger-button" id="resetButton" type="button">清空数据</button>
+          </div>
+        </div>
+        <div class="tool-card">
+          <h2>人员管理</h2>
+          <div class="people-list" id="peopleList"></div>
+        </div>
+      </section>
+    </main>
+
+    <dialog class="asset-dialog" id="assetDialog">
+      <form method="dialog" class="asset-form" id="assetForm">
+        <div class="dialog-head">
+          <h2 id="dialogTitle">新增资产</h2>
+          <button class="icon-button" value="cancel" type="button" id="closeDialog" aria-label="关闭" title="关闭">×</button>
+        </div>
+
+        <input type="hidden" id="assetId">
+        <div class="field">
+          <label for="assetOwner">归属人</label>
+          <select id="assetOwner" name="ownerId"></select>
+        </div>
+        <div class="field">
+          <label for="assetName">资产名称</label>
+          <input id="assetName" name="name" required placeholder="例如：沪深300 ETF">
+        </div>
+        <div class="field two-col">
+          <label for="assetCategory">类别</label>
+          <select id="assetCategory" name="category"></select>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label for="assetValue">当前市值</label>
+            <input id="assetValue" name="value" type="number" min="0" step="0.01" required>
+          </div>
+          <div class="field">
+            <label for="assetCost">持仓成本</label>
+            <input id="assetCost" name="cost" type="number" min="0" step="0.01" required>
+          </div>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label for="assetIncome">已收现金流</label>
+            <input id="assetIncome" name="income" type="number" min="0" step="0.01">
+          </div>
+          <div class="field">
+            <label for="assetReturn">预期年化 %</label>
+            <input id="assetReturn" name="expectedReturn" type="number" step="0.1">
+          </div>
+        </div>
+        <div class="field">
+          <label for="assetNote">备注</label>
+          <textarea id="assetNote" name="note" rows="3" placeholder="购买理由、调整计划、账户位置等"></textarea>
+        </div>
+        <menu class="dialog-actions">
+          <button class="secondary-button" type="button" id="deleteAssetButton">删除</button>
+          <button class="primary-button" value="default" type="submit">保存</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="app.js?v=8"></script>
+  </body>
+</html>
