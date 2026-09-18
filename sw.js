@@ -1,14 +1,14 @@
-const CACHE_NAME = "asset-compass-pwa-v9";
+const CACHE_NAME = "asset-compass-pwa-v10";
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./styles.css?v=8",
-  "./app.js?v=8",
-  "./manifest.webmanifest?v=8",
-  "./icons/icon-180.png",
-  "./icons/icon-192.png",
-  "./icons/icon-512.png",
-  "./icons/maskable-512.png"
+  "./styles.css?v=9",
+  "./app.js?v=9",
+  "./manifest.webmanifest?v=9",
+  "./icons/icon-180.png?v=2",
+  "./icons/icon-192.png?v=2",
+  "./icons/icon-512.png?v=2",
+  "./icons/maskable-512.png?v=2"
 ];
 
 self.addEventListener("install", (event) => {
